@@ -1,10 +1,12 @@
-'use client';
+// app/(blog)/search/page.jsx (or .tsx)
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { BlogCard } from '@/components/BlogCard';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { Suspense } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { BlogCard } from "@/components/BlogCard";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 interface Post {
   _id: string;
@@ -16,9 +18,10 @@ interface Post {
   content: string;
 }
 
-export default function SearchPage() {
+// Separate component that uses useSearchParams
+function SearchContent() {
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get('q') || '';
+  const initialQuery = searchParams.get("q") || "";
   const [query, setQuery] = useState(initialQuery);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +43,7 @@ export default function SearchPage() {
 
     try {
       const response = await fetch(
-        `/api/posts?search=${encodeURIComponent(searchQuery)}`
+        `/api/posts?search=${encodeURIComponent(searchQuery)}`,
       );
       const result = await response.json();
 
@@ -48,11 +51,11 @@ export default function SearchPage() {
         setPosts(result.data);
         setHasSearched(true);
       } else {
-        toast.error('Failed to search posts');
+        toast.error("Failed to search posts");
       }
     } catch (error) {
-      console.error('[v0] Error searching posts:', error);
-      toast.error('Failed to search posts');
+      console.error("[v0] Error searching posts:", error);
+      toast.error("Failed to search posts");
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +91,7 @@ export default function SearchPage() {
         {hasSearched && (
           <div>
             <p className="text-muted-foreground mb-6">
-              {posts.length} {posts.length === 1 ? 'result' : 'results'} found
+              {posts.length} {posts.length === 1 ? "result" : "results"} found
               {query && ` for "${query}"`}
             </p>
 
@@ -108,7 +111,7 @@ export default function SearchPage() {
                     category={post.category}
                     createdAt={post.createdAt}
                     image={post.image}
-                    excerpt={post.content.slice(0, 100) + '...'}
+                    excerpt={post.content.slice(0, 100) + "..."}
                   />
                 ))}
               </div>
@@ -117,5 +120,34 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Loading fallback component
+function SearchLoading() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-12 max-w-3xl">
+        <h1 className="text-3xl font-bold mb-6">Search Posts</h1>
+        <div className="mb-8">
+          <div className="flex gap-2">
+            <div className="flex-1 h-10 bg-muted animate-pulse rounded-md" />
+            <div className="px-4 py-2 h-10 bg-muted animate-pulse rounded-md w-20" />
+          </div>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading search...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<SearchLoading />}>
+      <SearchContent />
+    </Suspense>
   );
 }
