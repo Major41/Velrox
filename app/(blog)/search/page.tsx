@@ -1,7 +1,5 @@
-// app/(blog)/search/page.jsx (or .tsx)
 "use client";
 
-import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { BlogCard } from "@/components/BlogCard";
@@ -18,8 +16,7 @@ interface Post {
   content: string;
 }
 
-// Separate component that uses useSearchParams
-function SearchContent() {
+export default function SearchPage() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   const [query, setQuery] = useState(initialQuery);
@@ -111,7 +108,7 @@ function SearchContent() {
                     category={post.category}
                     createdAt={post.createdAt}
                     image={post.image}
-                    excerpt={post.content.slice(0, 100) + "..."}
+                    excerpt={post.content}
                   />
                 ))}
               </div>
@@ -120,34 +117,5 @@ function SearchContent() {
         )}
       </div>
     </div>
-  );
-}
-
-// Loading fallback component
-function SearchLoading() {
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-3xl">
-        <h1 className="text-3xl font-bold mb-6">Search Posts</h1>
-        <div className="mb-8">
-          <div className="flex gap-2">
-            <div className="flex-1 h-10 bg-muted animate-pulse rounded-md" />
-            <div className="px-4 py-2 h-10 bg-muted animate-pulse rounded-md w-20" />
-          </div>
-        </div>
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading search...</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Main page component with Suspense boundary
-export default function SearchPage() {
-  return (
-    <Suspense fallback={<SearchLoading />}>
-      <SearchContent />
-    </Suspense>
   );
 }

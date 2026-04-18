@@ -1,11 +1,12 @@
-import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { format } from 'date-fns';
-import { ShareButtons } from '@/components/ShareButtons';
-import { RelatedPosts } from '@/components/RelatedPosts';
-import { RecentPostsSidebar } from '@/components/RecentPostsSidebar';
-import { generatePostMetadata } from '@/lib/metadata';
-import type { Metadata } from 'next';
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { format } from "date-fns";
+import { ShareButtons } from "@/components/ShareButtons";
+import { RelatedPosts } from "@/components/RelatedPosts";
+import { RecentPostsSidebar } from "@/components/RecentPostsSidebar";
+import { generatePostMetadata } from "@/lib/metadata";
+import { renderHtmlContent } from "@/lib/html-renderer";
+import type { Metadata } from "next";
 
 interface Post {
   _id: string;
@@ -21,8 +22,8 @@ interface Post {
 async function getPost(slug: string): Promise<Post | null> {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/posts/${slug}`,
-      { next: { revalidate: 60 } }
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/posts/${slug}`,
+      { next: { revalidate: 60 } },
     );
 
     if (!response.ok) {
@@ -32,7 +33,7 @@ async function getPost(slug: string): Promise<Post | null> {
     const result = await response.json();
     return result.success ? result.data : null;
   } catch (error) {
-    console.error('[v0] Error fetching post:', error);
+    console.error("[v0] Error fetching post:", error);
     return null;
   }
 }
@@ -47,7 +48,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: 'Post Not Found',
+      title: "Post Not Found",
     };
   }
 
@@ -74,13 +75,11 @@ export default async function PostPage({
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   const postUrl = `${baseUrl}/post/${post.slug}`;
 
-  // Parse content as paragraphs (simple line-break separation)
-  const paragraphs = post.content
-    .split('\n\n')
-    .filter((p) => p.trim().length > 0);
+  // Render HTML content safely
+  const renderedContent = renderHtmlContent(post.content);
 
   return (
     <article className="min-h-screen bg-background">
@@ -96,7 +95,7 @@ export default async function PostPage({
                   {post.category}
                 </span>
                 <time className="text-sm text-muted-foreground">
-                  {format(new Date(post.createdAt), 'MMMM d, yyyy')}
+                  {format(new Date(post.createdAt), "MMMM d, yyyy")}
                 </time>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-balance">
@@ -124,22 +123,18 @@ export default async function PostPage({
 
             {/* Content */}
             <section className="prose prose-sm sm:prose max-w-none mb-12">
-              {paragraphs.map((paragraph, index) => (
-                <p
-                  key={index}
-                  className="mb-4 text-base leading-relaxed text-foreground"
-                >
-                  {paragraph}
-                </p>
-              ))}
+              <div
+                dangerouslySetInnerHTML={{ __html: renderedContent }}
+                className="text-foreground"
+              />
             </section>
 
             {/* Updated info */}
             <div className="text-sm text-muted-foreground border-t pt-4 mb-12 py-4">
               <p>
-                Last updated:{' '}
+                Last updated:{" "}
                 <time dateTime={post.updatedAt}>
-                  {format(new Date(post.updatedAt), 'MMMM d, yyyy')}
+                  {format(new Date(post.updatedAt), "MMMM d, yyyy")}
                 </time>
               </p>
             </div>
@@ -161,7 +156,7 @@ export default async function PostPage({
 export async function generateStaticParams() {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/posts`
+      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/posts`,
     );
     const result = await response.json();
 
@@ -173,7 +168,7 @@ export async function generateStaticParams() {
       slug: post.slug,
     }));
   } catch (error) {
-    console.error('[v0] Error generating static params:', error);
+    console.error("[v0] Error generating static params:", error);
     return [];
   }
 }

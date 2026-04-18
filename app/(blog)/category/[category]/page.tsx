@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { BlogCard } from '@/components/BlogCard';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { BlogCard } from "@/components/BlogCard";
+import { toast } from "sonner";
 
 interface Post {
   _id: string;
@@ -31,11 +31,11 @@ export default function CategoryPage() {
         if (result.success) {
           setPosts(result.data);
         } else {
-          toast.error('Failed to fetch posts');
+          toast.error("Failed to fetch posts");
         }
       } catch (error) {
-        console.error('[v0] Error fetching posts:', error);
-        toast.error('Failed to fetch posts');
+        console.error("[v0] Error fetching posts:", error);
+        toast.error("Failed to fetch posts");
       } finally {
         setIsLoading(false);
       }
@@ -59,7 +59,7 @@ export default function CategoryPage() {
           {decodeURIComponent(category)}
         </h1>
         <p className="text-muted-foreground mb-8">
-          {posts.length} {posts.length === 1 ? 'post' : 'posts'} found
+          {posts.length} {posts.length === 1 ? "post" : "posts"} found
         </p>
 
         {posts.length === 0 ? (
@@ -78,7 +78,7 @@ export default function CategoryPage() {
                 category={post.category}
                 createdAt={post.createdAt}
                 image={post.image}
-                excerpt={post.content.slice(0, 100) + '...'}
+                excerpt={post.content}
               />
             ))}
           </div>

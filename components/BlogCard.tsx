@@ -1,7 +1,8 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
-import { format } from 'date-fns';
+import Link from "next/link";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { format } from "date-fns";
+import { extractPlainText } from "@/lib/text-extractor";
 
 interface BlogCardProps {
   title: string;
@@ -39,7 +40,7 @@ export function BlogCard({
               {category}
             </span>
             <time className="text-xs text-muted-foreground">
-              {format(new Date(createdAt), 'MMM d')}
+              {format(new Date(createdAt), "MMM d")}
             </time>
           </div>
           <h3 className="font-bold text-base mb-2 line-clamp-2 group-hover:text-primary transition-colors">
@@ -47,7 +48,7 @@ export function BlogCard({
           </h3>
           {excerpt && (
             <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-              {excerpt}
+              {extractPlainText(excerpt, 100)}
             </p>
           )}
         </CardContent>

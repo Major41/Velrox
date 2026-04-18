@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { toast } from 'sonner';
-import Image from 'next/image';
+import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import Image from "next/image";
+import { RichTextEditor } from "@/components/RichTextEditor";
 
 interface PostFormProps {
   initialData?: {
@@ -21,30 +21,32 @@ interface PostFormProps {
 }
 
 const CATEGORIES = [
-  'Charging Issues',
-  'Battery',
-  'Performance',
-  'Apps',
-  'Network',
+  "Charging Issues",
+  "Battery",
+  "Performance",
+  "Apps",
+  "Network",
 ];
 
 export function PostForm({ initialData, isEditing = false }: PostFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(initialData?.image || '');
+  const [imageUrl, setImageUrl] = useState(initialData?.image || "");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    content: initialData?.content || '',
-    category: initialData?.category || 'Charging Issues',
+    title: initialData?.title || "",
+    content: initialData?.content || "",
+    category: initialData?.category || "Charging Issues",
   });
 
   const adminKey = process.env.NEXT_PUBLIC_ADMIN_KEY;
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -61,12 +63,12 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
 
     try {
       const formDataObj = new FormData();
-      formDataObj.append('file', file);
+      formDataObj.append("file", file);
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
+      const response = await fetch("/api/upload", {
+        method: "POST",
         headers: {
-          'x-admin-key': adminKey || '',
+          "x-admin-key": adminKey || "",
         },
         body: formDataObj,
       });
@@ -75,13 +77,13 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
 
       if (result.success) {
         setImageUrl(result.data.secure_url);
-        toast.success('Image uploaded successfully');
+        toast.success("Image uploaded successfully");
       } else {
-        toast.error(result.error || 'Failed to upload image');
+        toast.error(result.error || "Failed to upload image");
       }
     } catch (error) {
-      console.error('[v0] Image upload error:', error);
-      toast.error('Failed to upload image');
+      console.error("[v0] Image upload error:", error);
+      toast.error("Failed to upload image");
     } finally {
       setIsUploadingImage(false);
     }
@@ -91,24 +93,22 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
     e.preventDefault();
 
     if (!formData.title.trim() || !formData.content.trim()) {
-      toast.error('Please fill in all required fields');
+      toast.error("Please fill in all required fields");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const url = isEditing
-        ? `/api/posts/${initialData?.slug}`
-        : '/api/posts';
+      const url = isEditing ? `/api/posts/${initialData?.slug}` : "/api/posts";
 
-      const method = isEditing ? 'PUT' : 'POST';
+      const method = isEditing ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-          'x-admin-key': adminKey || '',
+          "Content-Type": "application/json",
+          "x-admin-key": adminKey || "",
         },
         body: JSON.stringify({
           ...formData,
@@ -119,14 +119,16 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
       const result = await response.json();
 
       if (result.success) {
-        toast.success(isEditing ? 'Post updated successfully' : 'Post created successfully');
-        router.push('/admin');
+        toast.success(
+          isEditing ? "Post updated successfully" : "Post created successfully",
+        );
+        router.push("/admin");
       } else {
-        toast.error(result.error || 'Failed to save post');
+        toast.error(result.error || "Failed to save post");
       }
     } catch (error) {
-      console.error('[v0] Form submission error:', error);
-      toast.error('Failed to save post');
+      console.error("[v0] Form submission error:", error);
+      toast.error("Failed to save post");
     } finally {
       setIsLoading(false);
     }
@@ -135,13 +137,15 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{isEditing ? 'Edit Post' : 'Create New Post'}</CardTitle>
+        <CardTitle>{isEditing ? "Edit Post" : "Create New Post"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium mb-2">Featured Image</label>
+            <label className="block text-sm font-medium mb-2">
+              Featured Image
+            </label>
             <input
               ref={fileInputRef}
               type="file"
@@ -167,7 +171,7 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploadingImage}
               >
-                {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                {isUploadingImage ? "Uploading..." : "Upload Image"}
               </Button>
             </div>
           </div>
@@ -189,7 +193,10 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
 
           {/* Category */}
           <div>
-            <label htmlFor="category" className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="category"
+              className="block text-sm font-medium mb-2"
+            >
               Category *
             </label>
             <select
@@ -209,27 +216,24 @@ export function PostForm({ initialData, isEditing = false }: PostFormProps) {
 
           {/* Content */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium mb-2">
-              Content *
-            </label>
-            <Textarea
-              id="content"
-              name="content"
+            <label className="block text-sm font-medium mb-2">Content *</label>
+            <RichTextEditor
               value={formData.content}
-              onChange={handleChange}
+              onChange={(content) =>
+                setFormData((prev) => ({ ...prev, content }))
+              }
               placeholder="Write your blog post content here..."
-              rows={10}
-              required
             />
           </div>
 
           {/* Buttons */}
           <div className="flex gap-2 pt-4">
-            <Button
-              type="submit"
-              disabled={isLoading || isUploadingImage}
-            >
-              {isLoading ? 'Saving...' : isEditing ? 'Update Post' : 'Create Post'}
+            <Button type="submit" disabled={isLoading || isUploadingImage}>
+              {isLoading
+                ? "Saving..."
+                : isEditing
+                  ? "Update Post"
+                  : "Create Post"}
             </Button>
             <Button
               type="button"

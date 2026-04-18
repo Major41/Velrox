@@ -1,3 +1,5 @@
+import { extractPlainText } from "./text-extractor";
+
 export function generatePostMetadata(post: {
   title: string;
   content: string;
@@ -7,7 +9,7 @@ export function generatePostMetadata(post: {
   createdAt: string;
 }) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://techfixhub.com";
-  const excerpt = post.content.slice(0, 160) + "...";
+  const excerpt = extractPlainText(post.content, 160);
 
   return {
     title: post.title,
@@ -19,7 +21,7 @@ export function generatePostMetadata(post: {
       url: `${baseUrl}/post/${post.slug}`,
       type: "article" as const,
       publishedTime: post.createdAt,
-      authors: ["Velrox"],
+      authors: ["Tech Fix Hub"],
       images: post.image
         ? [
             {
