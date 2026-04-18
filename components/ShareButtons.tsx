@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Share2 } from 'lucide-react';
+import { FaFacebook, FaTwitter, FaWhatsapp } from 'react-icons/fa';
+import { toast } from 'sonner';
 
 interface ShareButtonsProps {
   title: string;
@@ -19,31 +19,40 @@ export function ShareButtons({ title, url, description }: ShareButtonsProps) {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
   };
 
+  const handleShare = (platform: keyof typeof shareLinks) => {
+    window.open(shareLinks[platform], '_blank', 'noopener,noreferrer,width=600,height=400');
+  };
+
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm font-medium">Share:</span>
+    <div className="flex items-center gap-3">
+      <span className="text-sm font-medium text-muted-foreground">Share:</span>
       <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.open(shareLinks.whatsapp, '_blank')}
+        {/* Facebook */}
+        <button
+          onClick={() => handleShare('facebook')}
+          className="p-2 rounded-full bg-[#1877f2] hover:bg-[#1877f2]/90 text-white transition-all duration-200 hover:scale-110"
+          aria-label="Share on Facebook"
         >
-          WhatsApp
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.open(shareLinks.twitter, '_blank')}
+          <FaFacebook size={18} />
+        </button>
+        
+        {/* Twitter */}
+        <button
+          onClick={() => handleShare('twitter')}
+          className="p-2 rounded-full bg-[#1da1f2] hover:bg-[#1da1f2]/90 text-white transition-all duration-200 hover:scale-110"
+          aria-label="Share on Twitter"
         >
-          Twitter
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.open(shareLinks.facebook, '_blank')}
+          <FaTwitter size={18} />
+        </button>
+        
+        {/* WhatsApp */}
+        <button
+          onClick={() => handleShare('whatsapp')}
+          className="p-2 rounded-full bg-[#25d366] hover:bg-[#25d366]/90 text-white transition-all duration-200 hover:scale-110"
+          aria-label="Share on WhatsApp"
         >
-          Facebook
-        </Button>
+          <FaWhatsapp size={18} />
+        </button>
       </div>
     </div>
   );
