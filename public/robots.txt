@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /api
 
-Sitemap: https://techfixhub.com/sitemap.xml
+Sitemap: https://velrox-tech.netlify.app/sitemap.xml

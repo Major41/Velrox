@@ -8,7 +8,8 @@ export function generatePostMetadata(post: {
   category: string;
   createdAt: string;
 }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://techfixhub.com";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://velrox-tech.netlify.app";
   const excerpt = extractPlainText(post.content, 160);
 
   // Use featured image if available, otherwise generate OG image

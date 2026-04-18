@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://techfixhub.com';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://velrox-tech.netlify.app";
 
   try {
     // Fetch all posts for sitemap
