@@ -6,6 +6,7 @@ import { RelatedPosts } from "@/components/RelatedPosts";
 import { RecentPostsSidebar } from "@/components/RecentPostsSidebar";
 import { generatePostMetadata } from "@/lib/metadata";
 import { renderHtmlContent } from "@/lib/html-renderer";
+import { extractPlainText } from "@/lib/text-extractor";
 import type { Metadata } from "next";
 
 interface Post {
@@ -60,6 +61,15 @@ export async function generateMetadata({
     keywords: metadata.keywords,
     openGraph: metadata.openGraph,
     twitter: metadata.twitter,
+    icons: {
+      icon: "/icon.svg",
+      apple: "/apple-icon.png",
+    },
+    viewport: {
+      width: "device-width",
+      initialScale: 1,
+      maximumScale: 1,
+    },
   };
 }
 
@@ -81,75 +91,111 @@ export default async function PostPage({
   // Render HTML content safely
   const renderedContent = renderHtmlContent(post.content);
 
+  // Generate JSON-LD structured data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: extractPlainText(post.content, 160),
+    image:
+      post.image ||
+      `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category)}`,
+    datePublished: post.createdAt,
+    dateModified: post.updatedAt,
+    author: {
+      "@type": "Organization",
+      name: "Tech Fix Hub",
+      url: baseUrl,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Tech Fix Hub",
+      url: baseUrl,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": postUrl,
+    },
+    articleSection: post.category,
+  };
+
   return (
-    <article className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
-        {/* Main content with sidebar */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main content - col span 2 */}
-          <div className="lg:col-span-2">
-            {/* Header */}
-            <header className="mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="inline-block px-4 py-2 text-sm font-semibold bg-primary/15 text-primary rounded-full">
-                  {post.category}
-                </span>
-                <time className="text-sm text-muted-foreground">
-                  {format(new Date(post.createdAt), "MMMM d, yyyy")}
-                </time>
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-balance">
-                {post.title}
-              </h1>
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
-              {/* Featured Image */}
-              {post.image && (
-                <div className="relative w-full h-96 bg-slate-100 rounded-xl overflow-hidden mb-6">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
+      <article className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-12 max-w-6xl">
+          {/* Main content with sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main content - col span 2 */}
+            <div className="lg:col-span-2">
+              {/* Header */}
+              <header className="mb-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="inline-block px-4 py-2 text-sm font-semibold bg-primary/15 text-primary rounded-full">
+                    {post.category}
+                  </span>
+                  <time className="text-sm text-muted-foreground">
+                    {format(new Date(post.createdAt), "MMMM d, yyyy")}
+                  </time>
                 </div>
-              )}
+                <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-balance">
+                  {post.title}
+                </h1>
 
-              {/* Share Buttons */}
-              <div className="border-y py-4 mb-8">
-                <ShareButtons title={post.title} url={postUrl} />
+                {/* Featured Image */}
+                {post.image && (
+                  <div className="relative w-full h-96 bg-slate-100 rounded-xl overflow-hidden mb-6">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                )}
+
+                {/* Share Buttons */}
+                <div className="border-y py-4 mb-8">
+                  <ShareButtons title={post.title} url={postUrl} />
+                </div>
+              </header>
+
+              {/* Content */}
+              <section className="prose prose-sm sm:prose max-w-none mb-12">
+                <div
+                  dangerouslySetInnerHTML={{ __html: renderedContent }}
+                  className="text-foreground"
+                />
+              </section>
+
+              {/* Updated info */}
+              <div className="text-sm text-muted-foreground border-t pt-4 mb-12 py-4">
+                <p>
+                  Last updated:{" "}
+                  <time dateTime={post.updatedAt}>
+                    {format(new Date(post.updatedAt), "MMMM d, yyyy")}
+                  </time>
+                </p>
               </div>
-            </header>
 
-            {/* Content */}
-            <section className="prose prose-sm sm:prose max-w-none mb-12">
-              <div
-                dangerouslySetInnerHTML={{ __html: renderedContent }}
-                className="text-foreground"
-              />
-            </section>
-
-            {/* Updated info */}
-            <div className="text-sm text-muted-foreground border-t pt-4 mb-12 py-4">
-              <p>
-                Last updated:{" "}
-                <time dateTime={post.updatedAt}>
-                  {format(new Date(post.updatedAt), "MMMM d, yyyy")}
-                </time>
-              </p>
+              {/* Related Posts */}
+              <RelatedPosts currentSlug={post.slug} category={post.category} />
             </div>
 
-            {/* Related Posts */}
-            <RelatedPosts currentSlug={post.slug} category={post.category} />
-          </div>
-
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <RecentPostsSidebar currentSlug={post.slug} limit={5} />
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <RecentPostsSidebar currentSlug={post.slug} limit={5} />
+            </div>
           </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </>
   );
 }
 

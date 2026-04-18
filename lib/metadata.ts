@@ -11,6 +11,13 @@ export function generatePostMetadata(post: {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://techfixhub.com";
   const excerpt = extractPlainText(post.content, 160);
 
+  // Use featured image if available, otherwise generate OG image
+  const imageUrl = post.image
+    ? post.image.startsWith("http")
+      ? post.image
+      : `${baseUrl}${post.image}`
+    : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category)}`;
+
   return {
     title: post.title,
     description: excerpt,
@@ -22,22 +29,23 @@ export function generatePostMetadata(post: {
       type: "article" as const,
       publishedTime: post.createdAt,
       authors: ["Tech Fix Hub"],
-      images: post.image
-        ? [
-            {
-              url: post.image,
-              width: 1200,
-              height: 630,
-              alt: post.title,
-            },
-          ]
-        : [],
+      siteName: "Tech Fix Hub",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+          type: "image/jpeg",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image" as const,
       title: post.title,
       description: excerpt,
-      image: post.image,
+      image: imageUrl,
+      creator: "@techfixhub",
     },
   };
 }
