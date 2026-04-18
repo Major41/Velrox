@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { BlogCard } from "@/components/BlogCard";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,8 @@ interface Post {
   content: string;
 }
 
-function SearchContent() {
+// Inner component that uses useSearchParams
+function SearchResults() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   const [query, setQuery] = useState(initialQuery);
@@ -115,5 +116,14 @@ function SearchContent() {
         </div>
       )}
     </>
+  );
+}
+
+// Main component with Suspense boundary
+export default function SearchContent() {
+  return (
+    <Suspense fallback={<div className="text-center py-12">Loading search...</div>}>
+      <SearchResults />
+    </Suspense>
   );
 }
