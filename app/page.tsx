@@ -14,7 +14,7 @@ interface Post {
 async function getPosts() {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/posts`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`,
       { next: { revalidate: 60 } },
     );
 
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Tech Fix Hub",
     description: "Android Smartphone Repair Tips & Guides",
-    url: "https://techfixhub.com",
+    url: "https://velrox-tech.netlify.app",
     type: "website",
   },
 };
